@@ -508,6 +508,11 @@
         <div class="vibe-name">New People</div>
         <div class="vibe-sub">Just met someone</div>
       </div>
+      <div class="vibe-btn" data-vibe="video">
+        <span class="vibe-emoji">💻</span>
+        <div class="vibe-name">Video Call</div>
+        <div class="vibe-sub">Zoom, Teams, Meet</div>
+      </div>
       <div class="vibe-btn" data-vibe="deep">
         <span class="vibe-emoji">🧠</span>
         <div class="vibe-name">Go Deep</div>
@@ -964,6 +969,22 @@ const QUESTIONS = {
       { q: "What's something you believe that most people around you would disagree with?", followDeep: "Does disagreement strengthen or weaken your conviction?", followLight: "Is this safe to say out loud?", topics: [], interests: [] },
     ]
   },
+  video: {
+    light: [
+      { q: "Where are you calling from right now — and what's outside your window?", followDeep: "What do you love or hate about that place?", followLight: "Is the background real or a virtual one?", topics: [], interests: [] },
+      { q: "What's something you've discovered you're surprisingly good at since working remotely?", followDeep: "Has it changed how you see yourself professionally?", followLight: "Does it involve snacks?", topics: ['work'], interests: [] },
+      { q: "What's the best or worst video call moment you've ever had?", followDeep: "What did you learn from it?", followLight: "Did anyone else see it?", topics: ['work'], interests: [] },
+      { q: "If you could be anywhere in the world right now doing this call, where would it be?", followDeep: "What's the appeal of that place for you?", followLight: "Would you still have Wi-Fi?", topics: [], interests: ['travel'] },
+      { q: "What's one thing you wish more video calls had — or didn't have?", followDeep: "Why does that matter to you?", followLight: "Be honest about the mute button.", topics: ['work'], interests: [] },
+      { q: "What's something you're working on right now that you're actually excited about?", followDeep: "What's the part that energises you most?", followLight: "Is it on this call's agenda?", topics: ['work'], interests: [] },
+      { q: "What's the most unusual place you've ever joined a video call from?", followDeep: "Were you fully present for it?", followLight: "Was the camera on?", topics: [], interests: [] },
+      { q: "If this group could share one meal together in person, what would you all eat and where?", followDeep: "What would that gathering mean to you?", followLight: "Who's cooking?", topics: [], interests: ['food','travel'] },
+    ],
+    deep: [
+      { q: "What's something about the way your team works that you think others could learn from?", followDeep: "Is that being recognised or taken for granted?", followLight: "Could you explain it in one sentence?", topics: ['work'], interests: [] },
+      { q: "What's one thing you'd change about how we communicate as a group?", followDeep: "What's stopped that from happening so far?", followLight: "Is it something we could fix today?", topics: ['work'], interests: [] },
+    ]
+  },
   deep: {
     light: [
       { q: "What's something you've never told anyone but wouldn't mind sharing now?", followDeep: "Why now?", followLight: "On a scale of juicy to very juicy?", topics: [], interests: [] },
@@ -1078,7 +1099,7 @@ function startSession() {
   state.questionCount = 0;
   state.used = [];
   showScreen('question');
-  const vibeNames = { date:'🍷 Date Night', mates:'🍻 Mates', work:'💼 Work Drinks', family:'👨‍👩‍👧 Family', new:'🤝 New People', deep:'🧠 Go Deep' };
+  const vibeNames = { date:'🍷 Date Night', mates:'🍻 Mates', work:'💼 Work Drinks', family:'👨‍👩‍👧 Family', new:'🤝 New People', video:'💻 Video Call', deep:'🧠 Go Deep' };
   document.getElementById('vibePill').textContent = vibeNames[state.vibe];
   loadQuestion();
 }
