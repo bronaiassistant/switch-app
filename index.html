@@ -46,7 +46,7 @@
     transition: background 0.3s, color 0.3s;
   }
 
-  .screen { display:none; flex-direction:column; min-height:100vh; padding:20px 18px; }
+  .screen { display:none; flex-direction:column; min-height:100vh; padding:20px 18px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
   .screen.active { display:flex; }
 
   /* ── HOME ── */
@@ -536,7 +536,7 @@
 </div>
 
 <!-- WELCOME / ONBOARDING SCREEN -->
-<div class="screen" id="welcome">
+<div class="screen" id="welcome" style="overflow-y:auto;padding-bottom:20px;">
   <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 0;">
     <div style="text-align:center;margin-bottom:32px;">
       <img src="icon.png" style="width:80px;height:80px;border-radius:20px;margin-bottom:20px;" alt="Switch" />
@@ -576,7 +576,7 @@
 </div>
 
 <!-- PROFILE SCREEN -->
-<div class="screen" id="profile" style="overflow-y:auto;">
+<div class="screen" id="profile" style="overflow-y:auto;padding-bottom:40px;">
   <div style="padding-top:20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
     <div style="font-size:1.3rem;font-weight:700;">Your Profile</div>
     <button onclick="saveProfile()" style="background:none;border:none;color:var(--accent);font-size:0.9rem;font-weight:700;cursor:pointer;">Done</button>
