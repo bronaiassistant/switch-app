@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Switch — Real Conversations</title>
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<meta property="og:title" content="Switch — Real Conversations">
+<meta property="og:description" content="Put the phone down. Start talking. A conversation starter app designed for everyone.">
+<meta property="og:image" content="logo-marketing.png">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --card: #1a1a22;
+    --border: #2a2a36;
+    --accent: #ff5c5c;
+    --accent2: #ff9f40;
+    --text: #f0f0f0;
+    --muted: #888;
+    --radius: 20px;
+    --font-size: 1rem;
+  }
+
+  body.light-mode {
+    --bg: #f5f5f0;
+    --card: #ffffff;
+    --border: #e0e0e0;
+    --text: #1a1a22;
+    --muted: #666;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-size: var(--font-size);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .screen { display:none; flex-direction:column; min-height:100vh; padding:20px 18px; }
+  .screen.active { display:flex; }
+
+  /* ── HOME ── */
+  #home { justify-content:space-between; }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 32px;
+    margin-bottom: 4px;
+  }
+  .logo { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+  .logo span { color: var(--accent); }
+  .tagline { font-size: 0.88rem; color: var(--muted); margin-bottom: 20px; }
+
+  .settings-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .section-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .vibes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .vibe-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .vibe-btn:active { transform: scale(0.96); }
+  .vibe-btn.selected { border-color: var(--accent); background: rgba(255,92,92,0.1); }
+  .vibe-emoji { font-size: 1.8rem; display: block; margin-bottom: 5px; }
+  .vibe-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+  .vibe-sub { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+
+  .depth-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .depth-toggle {
+    display: inline-flex;
+    background: var(--card);
+    border-radius: 50px;
+    padding: 3px;
+    border: 1.5px solid var(--border);
+  }
+  .depth-opt {
+    padding: 7px 16px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    color: var(--muted);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .depth-opt.active { background: var(--accent); color: white; }
+
+  .go-btn {
+    width: 100%;
+    padding: 17px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+  .go-btn:active { transform: scale(0.98); }
+  .go-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .privacy-note { text-align: center; font-size: 0.72rem; color: var(--muted); }
+
+  /* ── PROFILE CHIPS ── */
+  .profile-chip {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .profile-chip.selected { background: rgba(255,92,92,0.12); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .profile-chip:active { transform: scale(0.96); }
+
+  /* ── ABOUT SCREEN ── */
+  #about { justify-content: flex-start; overflow-y: auto; }
+  .about-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-top: 16px; }
+  .about-title { font-size: 1.4rem; font-weight: 700; }
+  .insight-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
+  .insight-icon { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+  .insight-headline { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .insight-body { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+  .insight-source { font-size: 0.72rem; color: var(--accent2); text-decoration: none; display: inline-block; }
+  .insight-source:hover { text-decoration: underline; }
+  .about-divider { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin: 20px 0 12px; }
+  .design-list { list-style: none; }
+  .design-list li { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; font-size: 0.85rem; color: var(--text); line-height: 1.4; }
+  .design-list li span { color: var(--accent); font-weight: 700; margin-right: 6px; }
+
+  /* ── QUESTION SCREEN ── */
+  #question { justify-content: flex-start; overflow-y: auto; padding-bottom: 100px; }
+
+  .q-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+  }
+  .back-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 9px 16px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .vibe-pill {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 7px 14px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .question-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 12px 0 0;
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .q-number { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); }
+
+  .q-tools { display: flex; gap: 8px; }
+  .tool-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .tool-btn:active { transform: scale(0.9); }
+
+  .question-card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 32px 24px;
+    border: 1.5px solid var(--border);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .question-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: -0.2px;
+    color: var(--text);
+  }
+
+  .depth-badge {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .depth-badge.light { background: rgba(255,159,64,0.15); color: var(--accent2); }
+  .depth-badge.deep { background: rgba(255,92,92,0.15); color: var(--accent); }
+
+  .follow-area { text-align: center; }
+  .follow-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 10px; }
+  .follow-btns { display: flex; gap: 10px; justify-content: center; }
+  .follow-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 9px 18px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .follow-btn:active { transform: scale(0.96); }
+
+  .next-btn {
+    width: 100%;
+    padding: 17px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    transition: all 0.2s;
+  }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* ── SETTINGS PANEL ── */
+  #settings {
+    justify-content: flex-start;
+    padding-top: 24px;
+  }
+  .settings-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-top: 16px;
+  }
+  .settings-title { font-size: 1.4rem; font-weight: 700; }
+
+  .setting-group { margin-bottom: 24px; }
+  .setting-group-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 12px; display: block; }
+
+  .setting-row {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .setting-row:active { transform: scale(0.99); }
+  .setting-row-label { font-size: 0.9rem; font-weight: 500; }
+  .setting-row-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  /* Toggle switch */
+  .toggle {
+    width: 46px; height: 26px;
+    background: var(--border);
+    border-radius: 13px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .toggle.on::after { transform: translateX(20px); }
+
+  .font-row { display: flex; gap: 8px; }
+  .font-opt {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    color: var(--muted);
+    position: relative;
+  }
+  .font-opt.active { border-color: var(--accent); background: rgba(255,92,92,0.1); color: var(--accent); }
+  .font-opt.active::after { content: '✓'; position: absolute; top: -6px; right: -4px; font-size: 0.65rem; background: var(--accent); color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; }
+
+  /* Skip topics */
+  .topics-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .topic-chip {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+  .topic-chip.skipped { background: rgba(255,92,92,0.1); border-color: var(--accent); color: var(--accent); }
+
+  /* ── BREATHING OVERLAY ── */
+  #breathe-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+  }
+  #breathe-overlay.active { display: flex; }
+
+  .breathe-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,92,92,0.4), transparent);
+    border: 3px solid rgba(255,92,92,0.6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 28px;
+    animation: none;
+  }
+  .breathe-circle.in { animation: breathe-in 4s ease-in-out; }
+  .breathe-circle.hold { animation: breathe-hold 4s ease-in-out; }
+  .breathe-circle.out { animation: breathe-out 4s ease-in-out; }
+
+  @keyframes breathe-in {
+    from { transform: scale(0.7); opacity: 0.6; }
+    to { transform: scale(1.3); opacity: 1; }
+  }
+  @keyframes breathe-hold {
+    from { transform: scale(1.3); }
+    to { transform: scale(1.3); }
+  }
+  @keyframes breathe-out {
+    from { transform: scale(1.3); opacity: 1; }
+    to { transform: scale(0.7); opacity: 0.6; }
+  }
+
+  .breathe-instruction { font-size: 1.2rem; color: #fff; margin-bottom: 8px; font-weight: 600; }
+  .breathe-sub { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 32px; }
+  .breathe-close {
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .question-card.animate { animation: slideUp 0.3s ease; }
+
+  /* ── LARGE TEXT MODE ── */
+  body.large-text .question-text { font-size: 1.8rem; }
+  body.large-text .vibe-name { font-size: 1rem; }
+  body.large-text .go-btn, body.large-text .next-btn { font-size: 1.2rem; padding: 20px; }
+  body.large-text .follow-btn { font-size: 0.92rem; padding: 12px 22px; }
+</style>
+</head>
+<body>
+
+<!-- BREATHING OVERLAY -->
+<div id="breathe-overlay">
+  <div class="breathe-circle" id="breatheCircle">Breathe</div>
+  <div class="breathe-instruction" id="breatheInstruction">Breathe in...</div>
+  <div class="breathe-sub" id="breatheSub">Follow the circle</div>
+  <button class="breathe-close" onclick="closeBreathe()">Done — I'm ready</button>
+</div>
+
+<!-- HOME SCREEN -->
+<div class="screen active" id="home">
+  <div>
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="icon.png" style="width:44px;height:44px;border-radius:10px;" alt="Switch" />
+        <div>
+          <div class="logo">Switch<span>.</span></div>
+          <div class="tagline">Put the phone down. Start talking.</div>
+        </div>
+      </div>
+      <button class="settings-btn" onclick="showSettings()">⚙️</button>
+    </div>
+
+    <div class="section-label">Pick your vibe</div>
+    <div class="vibes-grid" id="vibesGrid">
+      <div class="vibe-btn" data-vibe="date">
+        <span class="vibe-emoji">🍷</span>
+        <div class="vibe-name">Date Night</div>
+        <div class="vibe-sub">Just the two of you</div>
+      </div>
+      <div class="vibe-btn" data-vibe="mates">
+        <span class="vibe-emoji">🍻</span>
+        <div class="vibe-name">Mates</div>
+        <div class="vibe-sub">Pub, BBQ, catch-up</div>
+      </div>
+      <div class="vibe-btn" data-vibe="work">
+        <span class="vibe-emoji">💼</span>
+        <div class="vibe-name">Work Drinks</div>
+        <div class="vibe-sub">Team or networking</div>
+      </div>
+      <div class="vibe-btn" data-vibe="family">
+        <span class="vibe-emoji">👨‍👩‍👧</span>
+        <div class="vibe-name">Family</div>
+        <div class="vibe-sub">All generations</div>
+      </div>
+      <div class="vibe-btn" data-vibe="new">
+        <span class="vibe-emoji">🤝</span>
+        <div class="vibe-name">New People</div>
+        <div class="vibe-sub">Just met someone</div>
+      </div>
+      <div class="vibe-btn" data-vibe="deep">
+        <span class="vibe-emoji">🧠</span>
+        <div class="vibe-name">Go Deep</div>
+        <div class="vibe-sub">Real conversation</div>
+      </div>
+    </div>
+
+    <div class="depth-row">
+      <span class="section-label" style="margin:0">Depth</span>
+      <div class="depth-toggle">
+        <div class="depth-opt active" data-depth="light">😄 Light</div>
+        <div class="depth-opt" data-depth="mix">🌊 Mix</div>
+        <div class="depth-opt" data-depth="deep">🔥 Deep</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <button class="go-btn" id="goBtn" disabled onclick="startSession()">Get a Question →</button>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button style="flex:1;padding:11px;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:0.82rem;cursor:pointer;" onclick="showScreen('profile')">👤 My Profile <span id="profileBadge" style="display:none;background:rgba(255,92,92,0.15);color:var(--accent);border-radius:50px;padding:2px 8px;font-size:0.72rem;margin-left:4px;"></span></button>
+      <button style="flex:1;padding:11px;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:0.82rem;cursor:pointer;" onclick="showScreen('about')">🔬 Why this works</button>
+    </div>
+    <div class="privacy-note">No accounts · No tracking · Works offline</div>
+  </div>
+</div>
+
+<!-- WELCOME / ONBOARDING SCREEN -->
+<div class="screen" id="welcome">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 0;">
+    <div style="text-align:center;margin-bottom:32px;">
+      <img src="icon.png" style="width:80px;height:80px;border-radius:20px;margin-bottom:20px;" alt="Switch" />
+      <div style="font-size:2.4rem;font-weight:800;letter-spacing:-1px;margin-bottom:8px;">Switch<span style="color:var(--accent);">.</span></div>
+      <div style="font-size:1rem;color:var(--muted);line-height:1.5;">Put the phone down.<br>Start talking.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;display:flex;align-items:flex-start;gap:14px;">
+        <div style="font-size:1.8rem;flex-shrink:0;">👋</div>
+        <div>
+          <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">One question at a time</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.4;">No scrolling, no feeds. Just one great question to kick off a real conversation.</div>
+        </div>
+      </div>
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;display:flex;align-items:flex-start;gap:14px;">
+        <div style="font-size:1.8rem;flex-shrink:0;">🧠</div>
+        <div>
+          <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">For every brain, every group</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.4;">Designed to be genuinely inclusive — for neurodivergent users, people with Down syndrome, social anxiety, and everyone in between.</div>
+        </div>
+      </div>
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;display:flex;align-items:flex-start;gap:14px;">
+        <div style="font-size:1.8rem;flex-shrink:0;">📵</div>
+        <div>
+          <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">No accounts. No tracking.</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.4;">Nothing stored, nothing sent anywhere. Your conversations are yours.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <button onclick="showScreen('profile')" style="width:100%;padding:17px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);font-size:1.05rem;font-weight:700;color:white;cursor:pointer;margin-bottom:10px;">Set up my profile →</button>
+    <button onclick="skipWelcome()" style="width:100%;padding:12px;background:transparent;border:none;color:var(--muted);font-size:0.88rem;cursor:pointer;">Skip — just get started</button>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="screen" id="profile" style="overflow-y:auto;">
+  <div style="padding-top:20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <div style="font-size:1.3rem;font-weight:700;">Your Profile</div>
+    <button onclick="saveProfile()" style="background:none;border:none;color:var(--accent);font-size:0.9rem;font-weight:700;cursor:pointer;">Done</button>
+  </div>
+
+  <div style="font-size:0.82rem;color:var(--muted);margin-bottom:20px;line-height:1.5;">Optional — helps personalise your questions. Nothing is stored or sent anywhere.</div>
+
+  <!-- Age -->
+  <div style="margin-bottom:20px;">
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">Age range</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;" id="ageGrid">
+      <div class="profile-chip" data-group="age" data-val="18-25" onclick="selectProfile(this)">18–25</div>
+      <div class="profile-chip" data-group="age" data-val="26-35" onclick="selectProfile(this)">26–35</div>
+      <div class="profile-chip" data-group="age" data-val="36-45" onclick="selectProfile(this)">36–45</div>
+      <div class="profile-chip" data-group="age" data-val="45-55" onclick="selectProfile(this)">45–55</div>
+      <div class="profile-chip" data-group="age" data-val="55+" onclick="selectProfile(this)">55+</div>
+      <div class="profile-chip" data-group="age" data-val="skip" onclick="selectProfile(this)">🤷 Skip</div>
+    </div>
+  </div>
+
+  <!-- Gender -->
+  <div style="margin-bottom:20px;">
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">I identify as</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;" id="genderGrid">
+      <div class="profile-chip" data-group="gender" data-val="male" onclick="selectProfile(this)">👨 Male</div>
+      <div class="profile-chip" data-group="gender" data-val="female" onclick="selectProfile(this)">👩 Female</div>
+      <div class="profile-chip" data-group="gender" data-val="nonbinary" onclick="selectProfile(this)">🏳️‍🌈 Non-binary</div>
+      <div class="profile-chip" data-group="gender" data-val="skip" onclick="selectProfile(this)">🤷 Prefer not to say</div>
+    </div>
+  </div>
+
+  <!-- Situation -->
+  <div style="margin-bottom:20px;">
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">I’m usually using this with</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <div class="profile-chip" data-group="situation" data-val="partner" onclick="selectProfile(this)">❤️ Partner</div>
+      <div class="profile-chip" data-group="situation" data-val="mates" onclick="selectProfile(this)">🍻 Mates</div>
+      <div class="profile-chip" data-group="situation" data-val="family" onclick="selectProfile(this)">👨‍👩‍👧 Family</div>
+      <div class="profile-chip" data-group="situation" data-val="work" onclick="selectProfile(this)">💼 Work</div>
+      <div class="profile-chip" data-group="situation" data-val="new" onclick="selectProfile(this)">🤝 New people</div>
+      <div class="profile-chip" data-group="situation" data-val="mixed" onclick="selectProfile(this)">🌏 Mixed groups</div>
+    </div>
+  </div>
+
+  <!-- Interests -->
+  <div style="margin-bottom:24px;">
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">Interests (pick any)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <div class="profile-chip" data-group="interest" data-val="sport" onclick="toggleInterest(this)">⚽ Sport</div>
+      <div class="profile-chip" data-group="interest" data-val="music" onclick="toggleInterest(this)">🎵 Music</div>
+      <div class="profile-chip" data-group="interest" data-val="food" onclick="toggleInterest(this)">🍕 Food</div>
+      <div class="profile-chip" data-group="interest" data-val="travel" onclick="toggleInterest(this)">✈️ Travel</div>
+      <div class="profile-chip" data-group="interest" data-val="tech" onclick="toggleInterest(this)">💻 Tech</div>
+      <div class="profile-chip" data-group="interest" data-val="health" onclick="toggleInterest(this)">🏃 Health</div>
+      <div class="profile-chip" data-group="interest" data-val="arts" onclick="toggleInterest(this)">🎨 Arts</div>
+      <div class="profile-chip" data-group="interest" data-val="nature" onclick="toggleInterest(this)">🌿 Nature</div>
+      <div class="profile-chip" data-group="interest" data-val="movies" onclick="toggleInterest(this)">🎥 Movies</div>
+      <div class="profile-chip" data-group="interest" data-val="reading" onclick="toggleInterest(this)">📚 Reading</div>
+    </div>
+  </div>
+
+  <button onclick="saveProfile()" style="width:100%;padding:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);font-size:1rem;font-weight:700;color:white;cursor:pointer;margin-bottom:8px;">Save &amp; Continue →</button>
+  <button onclick="showScreen('home')" style="width:100%;padding:12px;background:transparent;border:none;color:var(--muted);font-size:0.85rem;cursor:pointer;">Skip for now</button>
+</div>
+
+<!-- ABOUT / SCIENCE SCREEN -->
+<div class="screen" id="about" style="overflow-y:auto;">
+  <div style="padding-top:16px;display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+    <button class="back-btn" onclick="showScreen('home')">← Back</button>
+    <div style="font-size:1.3rem;font-weight:700;">Why Switch works</div>
+  </div>
+
+  <div style="background:linear-gradient(135deg,rgba(255,92,92,0.15),rgba(255,159,64,0.1));border:1.5px solid rgba(255,92,92,0.3);border-radius:16px;padding:18px;margin-bottom:16px;">
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">The core insight</div>
+    <div style="font-size:1rem;font-weight:600;line-height:1.5;color:var(--text);">People who have more meaningful conversations are measurably happier — not just in the moment, but over time. Switch is built on that research.</div>
+  </div>
+
+  <!-- Research cards -->
+  <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
+    <div style="font-size:1.4rem;margin-bottom:8px;">🧠</div>
+    <div style="font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:6px;">Deeper questions = deeper connection</div>
+    <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;margin-bottom:10px;">Studies show people who engage in more substantial, personal conversations report higher wellbeing and social satisfaction than those who stick to small talk. Even a single meaningful exchange can strengthen a relationship.</div>
+    <a href="https://soonly.com/conversation-starters/" target="_blank" style="font-size:0.72rem;color:var(--accent2);text-decoration:none;">→ Research on conversation quality</a>
+  </div>
+
+  <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
+    <div style="font-size:1.4rem;margin-bottom:8px;">🤝</div>
+    <div style="font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:6px;">Designed for every brain</div>
+    <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;margin-bottom:10px;">Switch is built using W3C Cognitive Accessibility guidelines and inclusive design principles — making it genuinely usable for people with ADHD, autism, social anxiety, Down syndrome, dyslexia, and anyone who finds conversation hard. Design for the edges, and everyone benefits.</div>
+    <a href="https://www.ux-bulletin.com/designing-for-neurodiversity/" target="_blank" style="font-size:0.72rem;color:var(--accent2);text-decoration:none;">→ UX for neurodiversity</a>
+  </div>
+
+  <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
+    <div style="font-size:1.4rem;margin-bottom:8px;">🫁</div>
+    <div style="font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:6px;">Calm before conversation</div>
+    <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;margin-bottom:10px;">The built-in breathing exercise uses box breathing — a clinically validated technique for reducing anxiety in under 2 minutes. For users with social anxiety or neurodivergent conditions, having a calming tool built right in reduces the barrier to starting a conversation.</div>
+    <a href="https://usetonen.com/" target="_blank" style="font-size:0.72rem;color:var(--accent2);text-decoration:none;">→ Tonen — neurodivergent communication tools</a>
+  </div>
+
+  <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
+    <div style="font-size:1.4rem;margin-bottom:8px;">📵</div>
+    <div style="font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:6px;">Phone as a bridge, not a barrier</div>
+    <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;margin-bottom:10px;">Switch is intentionally minimal — one question, then you put the phone down. No feeds, no notifications, no accounts. The app's job is done the moment you look up.</div>
+    <a href="https://www.springsocial.app/" target="_blank" style="font-size:0.72rem;color:var(--accent2);text-decoration:none;">→ SpringSocial — neurodivergent social practice</a>
+  </div>
+
+  <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
+    <div style="font-size:1.4rem;margin-bottom:8px;">💙</div>
+    <div style="font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:6px;">Inclusive for Down syndrome users</div>
+    <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;margin-bottom:10px;">Switch follows design principles specifically validated for Down syndrome users — simple layouts, one task at a time, plain language, high contrast, large touch targets, and icon + text pairing. Many people with DS have stronger receptive (listening) skills than reading skills — which is exactly why Switch has read-aloud built in. No other conversation app has been built with this community in mind.</div>
+    <a href="https://www.numberanalytics.com/blog/designing-for-down-syndrome" target="_blank" style="font-size:0.72rem;color:var(--accent2);text-decoration:none;display:block;margin-bottom:6px;">→ Designing for Down syndrome (Number Analytics)</a>
+    <a href="https://scienceinsights.org/how-to-communicate-with-adults-with-down-syndrome/" target="_blank" style="font-size:0.72rem;color:var(--accent2);text-decoration:none;display:block;margin-bottom:6px;">→ Communicating with adults with Down syndrome</a>
+    <a href="https://dsrf.org/resources/information/communication/social-communication/" target="_blank" style="font-size:0.72rem;color:var(--accent2);text-decoration:none;">→ Down Syndrome Research Foundation — social communication</a>
+  </div>
+
+  <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;">
+    <div style="font-size:1.4rem;margin-bottom:8px;">🔬</div>
+    <div style="font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:6px;">Evidence-backed question design</div>
+    <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;margin-bottom:10px;">Questions are structured around self-disclosure — the proven driver of interpersonal closeness. Research from UCLA's PEERS program shows that structured conversational prompts lead to measurable improvements in social connection for neurodivergent adults.</div>
+    <a href="https://neurolaunch.com/social-skills-app/" target="_blank" style="font-size:0.72rem;color:var(--accent2);text-decoration:none;">→ Social skills apps & the neuroscience behind them</a>
+  </div>
+
+  <!-- Mission statement -->
+  <div style="background:linear-gradient(135deg,rgba(255,92,92,0.1),rgba(255,159,64,0.08));border:1.5px solid rgba(255,92,92,0.25);border-radius:16px;padding:20px;margin-bottom:12px;">
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:10px;">The vision</div>
+    <div style="font-size:0.95rem;font-style:italic;color:var(--text);line-height:1.6;margin-bottom:10px;">&ldquo;Imagine a young adult with Down syndrome at work drinks. They pull out Switch, suggest a question. The group laughs, connects &mdash; and that person gets to participate more fully than they might have otherwise.&rdquo;</div>
+    <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;">Switch isn&rsquo;t a therapy tool. It&rsquo;s not a special needs app. It&rsquo;s a conversation tool that works for everyone &mdash; and happens to work especially well for the people who are most often left out.</div>
+  </div>
+
+  <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:24px;">
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">Design principles</div>
+    <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">
+      ✓ One question at a time — reduces cognitive load<br>
+      ✓ No time pressure — no countdowns, no timers<br>
+      ✓ Skip any question — full user control<br>
+      ✓ Plain, direct language — no jargon or idioms<br>
+      ✓ High contrast UI — visual accessibility<br>
+      ✓ Large touch targets — motor accessibility<br>
+      ✓ Icon + text pairing — dual-coding for comprehension<br>
+      ✓ Read aloud — supports dyslexia, vision needs, DS<br>
+      ✓ Topic filters — safe spaces for sensitive topics<br>
+      ✓ Breathing tool — anxiety support built in<br>
+      ✓ 4 font sizes — visual comfort for all users<br>
+      ✓ No accounts, no passwords — zero barrier to entry<br>
+      ✓ Works offline — anywhere, anytime<br>
+      ✓ Positive pacing — no pressure, no scoring
+    </div>
+  </div>
+</div>
+
+<!-- QUESTION SCREEN -->
+<div class="screen" id="question">
+  <div class="q-header">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+    <div class="vibe-pill" id="vibePill">Date Night</div>
+  </div>
+
+  <div class="question-area">
+    <div class="q-meta">
+      <div class="q-number" id="qNumber">Question 1</div>
+      <div class="q-tools">
+        <button class="tool-btn" title="Read aloud" onclick="readAloud()" id="speakBtn">🔊</button>
+        <button class="tool-btn" title="Calm breath" onclick="startBreathe()">🫁</button>
+        <button class="tool-btn" title="Skip question" onclick="nextQuestion()">⏭</button>
+      </div>
+    </div>
+
+    <div class="question-card animate" id="questionCard">
+      <div class="question-text" id="questionText">Loading...</div>
+      <span class="depth-badge light" id="depthBadge">Light</span>
+    </div>
+
+    <!-- Hint panel (hidden by default) -->
+    <div id="hintPanel" style="display:none;background:rgba(255,159,64,0.1);border:1.5px solid rgba(255,159,64,0.4);border-radius:14px;padding:14px;margin-bottom:12px;">
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent2);margin-bottom:6px;">Example answer</div>
+      <div id="hintText" style="font-size:0.88rem;color:var(--text);line-height:1.5;"></div>
+    </div>
+
+    <div class="follow-area">
+      <div class="follow-label">Need a nudge?</div>
+      <div class="follow-btns">
+        <button class="follow-btn" onclick="showFollowUp('deeper')">Go deeper 🔥</button>
+        <button class="follow-btn" onclick="showFollowUp('lighter')">Keep it light 😄</button>
+        <button class="follow-btn" onclick="showHint()">Hint 💡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Encouragement overlay -->
+  <div id="encourageOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px;">
+    <div style="font-size:4rem;margin-bottom:16px;" id="encourageEmoji">🎉</div>
+    <div style="font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:8px;" id="encourageText">You're on a roll!</div>
+    <div style="font-size:0.9rem;color:rgba(255,255,255,0.7);margin-bottom:28px;" id="encourageSub">Keep the conversation going</div>
+    <button onclick="closeEncourage()" style="background:white;border:none;color:#0f0f13;padding:14px 32px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;">Keep going →</button>
+  </div>
+
+  <!-- Turn taking overlay -->
+  <div id="turnOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:50;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px;">
+    <div style="font-size:0.8rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.5);margin-bottom:12px;">It's your turn</div>
+    <div style="font-size:2.5rem;font-weight:800;color:white;margin-bottom:8px;" id="turnName">Alex</div>
+    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 24px;">👤</div>
+    <button onclick="closeTurn()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:white;padding:14px 32px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;">I'm ready!</button>
+  </div>
+
+  <div style="position:fixed;bottom:0;left:0;right:0;padding:12px 18px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--border);z-index:10;">
+    <button class="next-btn" style="margin:0;" onclick="nextQuestion()">Next Question →</button>
+  </div>
+</div>
+
+<!-- SETTINGS SCREEN -->
+<div class="screen" id="settings">
+  <div class="settings-header">
+    <button class="back-btn" onclick="closeSettings()">← Back</button>
+    <div class="settings-title">Settings</div>
+  </div>
+
+  <div class="setting-group">
+    <span class="setting-group-label">Display</span>
+    <div class="setting-row" onclick="toggleLightMode()">
+      <div>
+        <div class="setting-row-label">☀️ Light mode</div>
+        <div class="setting-row-sub">Switch to light background</div>
+      </div>
+      <div class="toggle" id="lightToggle"></div>
+    </div>
+    <div class="setting-row" onclick="toggleLargeText()">
+      <div>
+        <div class="setting-row-label">🔡 Large text</div>
+        <div class="setting-row-sub">Bigger question text</div>
+      </div>
+      <div class="toggle" id="largeTextToggle"></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <span class="setting-group-label">Text size</span>
+    <div class="font-row">
+      <div class="font-opt active" data-size="small" onclick="setFontSize('small')">A</div>
+      <div class="font-opt" data-size="medium" onclick="setFontSize('medium')" style="font-size:1.1rem">A</div>
+      <div class="font-opt" data-size="large" onclick="setFontSize('large')" style="font-size:1.3rem">A</div>
+      <div class="font-opt" data-size="xlarge" onclick="setFontSize('xlarge')" style="font-size:1.5rem">A</div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <span class="setting-group-label">Skip topics (questions about these are hidden)</span>
+    <div class="topics-grid" id="topicsGrid">
+      <div class="topic-chip" data-topic="relationships" onclick="toggleTopic(this)">💑 Relationships</div>
+      <div class="topic-chip" data-topic="family" onclick="toggleTopic(this)">👨‍👩‍👧 Family</div>
+      <div class="topic-chip" data-topic="work" onclick="toggleTopic(this)">💼 Work</div>
+      <div class="topic-chip" data-topic="money" onclick="toggleTopic(this)">💰 Money</div>
+      <div class="topic-chip" data-topic="politics" onclick="toggleTopic(this)">🗳️ Politics</div>
+      <div class="topic-chip" data-topic="religion" onclick="toggleTopic(this)">🙏 Religion</div>
+      <div class="topic-chip" data-topic="health" onclick="toggleTopic(this)">🏥 Health</div>
+      <div class="topic-chip" data-topic="death" onclick="toggleTopic(this)">💀 Death/Loss</div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <span class="setting-group-label">Accessibility</span>
+    <div class="setting-row" onclick="toggleReadAloudAuto()">
+      <div>
+        <div class="setting-row-label">🔊 Auto read aloud</div>
+        <div class="setting-row-sub">Reads each question automatically</div>
+      </div>
+      <div class="toggle" id="autoReadToggle"></div>
+    </div>
+    <div class="setting-row" onclick="toggleEncouragement()">
+      <div>
+        <div class="setting-row-label">🎉 Encouragement mode</div>
+        <div class="setting-row-sub">Gentle celebration every few questions</div>
+      </div>
+      <div class="toggle" id="encourageToggle"></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <span class="setting-group-label">Turn taking</span>
+    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:8px;">
+      <div style="font-size:0.88rem;font-weight:500;margin-bottom:10px;">Add names (optional)</div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">Switch will show whose turn it is before each question</div>
+      <div id="playerList" style="margin-bottom:8px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input id="playerInput" type="text" placeholder="Add a name..." style="flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:0.88rem;" onkeydown="if(event.key==='Enter')addPlayer()" />
+        <button onclick="addPlayer()" style="background:var(--accent);border:none;color:white;padding:10px 16px;border-radius:10px;font-size:0.88rem;font-weight:600;cursor:pointer;">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+const state = {
+  vibe: null,
+  depth: 'light',
+  questionCount: 0,
+  used: [],
+  currentQ: null,
+  skippedTopics: [],
+  lightMode: false,
+  largeText: false,
+  fontSize: 'small',
+  autoRead: false,
+  encourageMode: false,
+  players: [],
+  currentPlayer: 0,
+  useTurns: false,
+};
+
+// ── Questions ──
+// Each question has: q (text), followDeep, followLight, topics (skip filter), interests (profile matching)
+const QUESTIONS = {
+  date: {
+    light: [
+      { q: "What's a film you could watch on repeat and never get bored of?", followDeep: "What is it about that film that connects with you so deeply?", followLight: "Popcorn or pizza while watching?", topics: [], interests: ['movies','arts'] },
+      { q: "If you could wake up tomorrow in any city in the world, where would it be?", followDeep: "What is it about that place that pulls you?", followLight: "What's the first thing you'd eat there?", topics: [], interests: ['travel'] },
+      { q: "What's the best meal you've ever had and where was it?", followDeep: "Who were you with, and why was it so memorable?", followLight: "Could you recreate it at home?", topics: [], interests: ['food','travel'] },
+      { q: "What did a younger version of you think adult life would look like?", followDeep: "What's been the biggest surprise about how it actually turned out?", followLight: "Did you think you'd be taller?", topics: [], interests: [] },
+      { q: "What's something you're unexpectedly good at that most people don't know about?", followDeep: "How did you discover that?", followLight: "Could you demonstrate it right now?", topics: [], interests: ['sport','arts','music'] },
+      { q: "What's a trip you've taken that you still think about more than any other?", followDeep: "What was it about that trip that stuck with you?", followLight: "Would you go back?", topics: [], interests: ['travel'] },
+      { q: "What's a song that takes you straight back to a specific moment in your life?", followDeep: "What's the memory it unlocks?", followLight: "What's the genre?", topics: [], interests: ['music'] },
+      { q: "What's the most adventurous thing you've ever eaten?", followDeep: "Was it worth it?", followLight: "Would you eat it again?", topics: [], interests: ['food','travel'] },
+      { q: "If you could go to any live event tonight — concert, game, show — what would it be?", followDeep: "What makes live experiences different for you?", followLight: "Who would you take?", topics: [], interests: ['music','sport','arts'] },
+    ],
+    deep: [
+      { q: "What's something you've genuinely changed your mind about in the last few years?", followDeep: "What made you shift?", followLight: "Was it gradual or a sudden moment?", topics: [], interests: [] },
+      { q: "What does a really good day look like for you?", followDeep: "How often do you actually have those days?", followLight: "What needs to go right first?", topics: [], interests: [] },
+      { q: "What's something you're proud of that you don't talk about much?", followDeep: "Why don't you talk about it?", followLight: "Can I be proud of it too?", topics: [], interests: [] },
+      { q: "Is there something you want more of in your life right now?", followDeep: "What's stopping you from having it?", followLight: "Is it something money can buy?", topics: [], interests: [] },
+    ]
+  },
+  mates: {
+    light: [
+      { q: "What's the worst job you've ever had?", followDeep: "Did it shape who you are in any way?", followLight: "Would you do it again for double the pay?", topics: ['work'], interests: ['work'] },
+      { q: "What's a hill you'll die on — something you'll never back down from?", followDeep: "Where does that conviction come from?", followLight: "How many arguments has it caused?", topics: [], interests: [] },
+      { q: "What's the most ridiculous thing you believed as a kid?", followDeep: "When did you find out the truth?", followLight: "Do you still kind of believe it a little?", topics: [], interests: [] },
+      { q: "What team, artist or show are you weirdly loyal to even when they disappoint you?", followDeep: "What keeps you coming back?", followLight: "How bad does it have to get before you quit?", topics: [], interests: ['sport','music','movies'] },
+      { q: "If your life was a TV show, what genre would it be?", followDeep: "Who would play you?", followLight: "Would you actually watch it?", topics: [], interests: ['movies'] },
+      { q: "What's the most impulsive thing you've ever done?", followDeep: "Do you regret it?", followLight: "Did anyone find out?", topics: [], interests: [] },
+      { q: "What sport or physical challenge would you love to try but haven't yet?", followDeep: "What's stopped you?", followLight: "How out of shape would you need to be for it to be embarrassing?", topics: [], interests: ['sport','health'] },
+      { q: "What's a gig or concert that was genuinely one of the best nights of your life?", followDeep: "What made it special?", followLight: "Did you know all the words?", topics: [], interests: ['music'] },
+    ],
+    deep: [
+      { q: "What's something you wish you'd started earlier in life?", followDeep: "What stopped you at the time?", followLight: "Is it too late to start now?", topics: [], interests: [] },
+      { q: "Who's someone you've lost touch with that you still think about sometimes?", followDeep: "What would you say if you ran into them?", followLight: "Are they still on Instagram?", topics: ['relationships'], interests: [] },
+    ]
+  },
+  work: {
+    light: [
+      { q: "What's the most useful thing you've learned at work that nobody teaches?", followDeep: "How did you figure it out?", followLight: "Should they teach it?", topics: ['work'], interests: [] },
+      { q: "What's a work habit of yours that probably looks weird to other people?", followDeep: "Does it actually work?", followLight: "Has anyone called it out?", topics: ['work'], interests: [] },
+      { q: "What's the best feedback you've ever received?", followDeep: "Was it hard to hear at the time?", followLight: "Did you actually take it on board?", topics: ['work'], interests: [] },
+      { q: "If you had to explain your job to a 10-year-old, what would you say?", followDeep: "Does that description excite or depress you?", followLight: "Would the 10-year-old want your job?", topics: ['work'], interests: [] },
+      { q: "What's something you'd change about your industry if you could?", followDeep: "Why hasn't anyone fixed it yet?", followLight: "Would you quit to fix it?", topics: ['work'], interests: [] },
+    ],
+    deep: [
+      { q: "What's the gap between the career you have and the one you imagined for yourself?", followDeep: "Are you at peace with that gap?", followLight: "Is it a small gap or a canyon?", topics: ['work'], interests: [] },
+      { q: "What's something you've learned from someone you really didn't expect to learn from?", followDeep: "Did it change how you think about people?", followLight: "Did you tell them?", topics: [], interests: [] },
+    ]
+  },
+  family: {
+    light: [
+      { q: "What's a family tradition — official or unofficial — that you secretly love?", followDeep: "Where did it start?", followLight: "What happens if you skip it?", topics: ['family'], interests: [] },
+      { q: "What's something a family member does that drives you crazy, but you'd miss if they stopped?", followDeep: "Have you ever told them that?", followLight: "Rate the annoyance out of 10.", topics: ['family'], interests: [] },
+      { q: "What's the funniest family story that gets told at every gathering?", followDeep: "Who's the hero and who's the villain?", followLight: "Is the person it's about in the room right now?", topics: ['family'], interests: [] },
+      { q: "Is there a dish or meal that instantly takes you back to your childhood?", followDeep: "What is it about that food that holds so much memory?", followLight: "Could anyone else make it taste right?", topics: ['family'], interests: ['food'] },
+      { q: "What's something you find yourself saying that reminds you of someone who raised you?", followDeep: "How do you feel when you catch yourself saying it?", followLight: "Say it right now.", topics: ['family'], interests: [] },
+    ],
+    deep: [
+      { q: "What's something you wish the people close to you talked about more openly?", followDeep: "What gets in the way of that conversation?", followLight: "Is right now a good time?", topics: [], interests: [] },
+      { q: "What's one thing you want the people in this room to know?", followDeep: "Do you say it often enough?", followLight: "Can you say it in three words?", topics: [], interests: [] },
+    ]
+  },
+  new: {
+    light: [
+      { q: "What's something you're into right now that you didn't expect to be into?", followDeep: "How did you get into it?", followLight: "How niche are we talking?", topics: [], interests: [] },
+      { q: "What's the last thing you got genuinely excited about?", followDeep: "What does that excitement feel like for you?", followLight: "Scale of 1–10, how excited?", topics: [], interests: [] },
+      { q: "What's a question you always want people to ask you but they rarely do?", followDeep: "Why do you think people don't ask it?", followLight: "I'm asking — go.", topics: [], interests: [] },
+      { q: "What place in the world would you move to tomorrow if you could?", followDeep: "What's stopping you?", followLight: "Do you know anyone there?", topics: [], interests: ['travel'] },
+      { q: "What's a sport or activity you played as a kid that you wish you'd kept going with?", followDeep: "Why did you stop?", followLight: "How good were you really?", topics: [], interests: ['sport','health'] },
+      { q: "What's a TV show, book or album you'd recommend to almost anyone?", followDeep: "What is it about it that you think resonates universally?", followLight: "What's the genre?", topics: [], interests: ['movies','reading','music'] },
+    ],
+    deep: [
+      { q: "What's something you believe that most people around you would disagree with?", followDeep: "Does disagreement strengthen or weaken your conviction?", followLight: "Is this safe to say out loud?", topics: [], interests: [] },
+    ]
+  },
+  deep: {
+    light: [
+      { q: "What's something you've never told anyone but wouldn't mind sharing now?", followDeep: "Why now?", followLight: "On a scale of juicy to very juicy?", topics: [], interests: [] },
+      { q: "What's a belief you hold that you can't fully explain?", followDeep: "Does the lack of explanation bother you?", followLight: "Is it aliens?", topics: [], interests: [] },
+      { q: "What's the most important lesson from a hard time in your life?", followDeep: "Would you go through it again knowing what you know?", followLight: "Did it come with a certificate?", topics: ['health', 'death'], interests: ['health'] },
+      { q: "What's something you're still figuring out about yourself?", followDeep: "What clues are you following?", followLight: "Is therapy on the table?", topics: [], interests: [] },
+      { q: "What do you want people to say about you when you're not in the room?", followDeep: "Is that who you are right now?", followLight: "And what do they actually say?", topics: [], interests: [] },
+      { q: "What's a version of yourself you had to let go of?", followDeep: "Do you miss that version?", followLight: "Did anyone notice the change?", topics: [], interests: [] },
+      { q: "What's something about the way you grew up that you didn't realise was unusual until later?", followDeep: "How has it shaped you?", followLight: "Does it explain a lot?", topics: ['family'], interests: [] },
+      { q: "What's a place you've been that genuinely changed how you see the world?", followDeep: "What specifically shifted for you?", followLight: "Did you see it coming?", topics: [], interests: ['travel'] },
+    ],
+    deep: [
+      { q: "What are you most afraid of — and is it a rational fear?", followDeep: "When did you first become aware of it?", followLight: "Rate the fear out of 10.", topics: ['health'], interests: [] },
+      { q: "What's something you've let go of that you used to think was essential?", followDeep: "What replaced it?", followLight: "Do you miss it?", topics: [], interests: [] },
+      { q: "What does a meaningful life look like to you right now?", followDeep: "How close are you to it?", followLight: "Can you describe it in one sentence?", topics: [], interests: [] },
+    ]
+  }
+};
+
+// ── First launch ──
+window.addEventListener('load', () => {
+  const hasProfile = localStorage.getItem('switch_profile_seen');
+  if (!hasProfile) {
+    setTimeout(() => showScreen('welcome'), 600);
+  }
+});
+
+function saveProfile() {
+  localStorage.setItem('switch_profile_seen', '1');
+  updateProfileBadge();
+  showScreen('home');
+}
+
+function skipWelcome() {
+  localStorage.setItem('switch_profile_seen', '1');
+  showScreen('home');
+}
+
+// ── Vibe selection ──
+document.querySelectorAll('.vibe-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.vibe-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.vibe = btn.dataset.vibe;
+    document.getElementById('goBtn').disabled = false;
+  });
+});
+
+// ── Depth ──
+document.querySelectorAll('.depth-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.depth-opt').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    state.depth = opt.dataset.depth;
+  });
+});
+
+// ── Get a question (with personalisation weighting) ──
+function getQuestion() {
+  const vibe = QUESTIONS[state.vibe];
+  let pool = [];
+  if (state.depth === 'light') pool = [...(vibe.light||[])];
+  else if (state.depth === 'deep') pool = [...(vibe.deep||[]), ...(vibe.light||[])];
+  else pool = [...(vibe.light||[]), ...(vibe.deep||[])];
+
+  // Filter skipped topics
+  pool = pool.filter(q => !q.topics.some(t => state.skippedTopics.includes(t)));
+  if (pool.length === 0) pool = [...(vibe.light||[])]; // fallback
+
+  // Filter unused
+  const unused = pool.filter(q => !state.used.includes(q.q.slice(0,20) + state.vibe));
+  const src = unused.length > 0 ? unused : pool;
+
+  // ── Personalisation weighting (uses question interest tags) ──
+  const { age, situation, interests } = state.profile;
+  const weighted = [];
+
+  src.forEach(q => {
+    let weight = 1;
+    const qInterests = q.interests || [];
+    const qTopics = q.topics || [];
+
+    // Interest matching — use tagged interests on question
+    if (interests && interests.length > 0) {
+      const matches = qInterests.filter(i => interests.includes(i)).length;
+      weight += matches * 3; // strong boost for matching interests
+    }
+
+    // Situation weighting
+    if (situation === 'work' && qTopics.includes('work')) weight += 2;
+    if (situation === 'family' && qTopics.includes('family')) weight += 2;
+    if (situation === 'new' && qTopics.includes('relationships')) weight -= 2;
+    if (situation === 'partner' && qTopics.includes('family')) weight -= 1;
+
+    // Age weighting
+    if (age === '50+' && qTopics.includes('family')) weight += 1;
+    if (age === '18-25' && qInterests.includes('sport')) weight += 1;
+    if (age === '18-25' && qInterests.includes('movies')) weight += 1;
+
+    // Add to weighted pool
+    for (let i = 0; i < Math.max(1, weight); i++) weighted.push(q);
+  });
+
+  // Pick from weighted pool
+  const q = weighted[Math.floor(Math.random() * weighted.length)];
+  state.used.push(q.q.slice(0,20) + state.vibe);
+  return q;
+}
+
+function startSession() {
+  if (!state.vibe) return;
+  state.questionCount = 0;
+  state.used = [];
+  showScreen('question');
+  const vibeNames = { date:'🍷 Date Night', mates:'🍻 Mates', work:'💼 Work Drinks', family:'👨‍👩‍👧 Family', new:'🤝 New People', deep:'🧠 Go Deep' };
+  document.getElementById('vibePill').textContent = vibeNames[state.vibe];
+  loadQuestion();
+}
+
+function loadQuestion() {
+  state.questionCount++;
+  const q = getQuestion();
+  state.currentQ = q;
+
+  const card = document.getElementById('questionCard');
+  card.classList.remove('animate');
+  void card.offsetWidth;
+  card.classList.add('animate');
+
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('qNumber').textContent = `Question ${state.questionCount}`;
+
+  const isDeep = QUESTIONS[state.vibe].deep && QUESTIONS[state.vibe].deep.includes(q);
+  const badge = document.getElementById('depthBadge');
+  badge.textContent = isDeep ? 'Deep' : 'Light';
+  badge.className = 'depth-badge ' + (isDeep ? 'deep' : 'light');
+
+  if (state.autoRead) readAloud();
+}
+
+function nextQuestion() {
+  if (state.useTurns && state.players.length > 1) {
+    showTurn();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showFollowUp(type) {
+  if (!state.currentQ) return;
+  const text = type === 'deeper' ? state.currentQ.followDeep : state.currentQ.followLight;
+  document.getElementById('questionText').textContent = text;
+  if (state.autoRead) readAloud();
+}
+
+function goHome() { showScreen('home'); }
+
+// ── Screen nav ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showSettings() { showScreen('settings'); }
+function closeSettings() { showScreen('home'); }
+
+// ── Settings ──
+function toggleLightMode() {
+  state.lightMode = !state.lightMode;
+  document.body.classList.toggle('light-mode', state.lightMode);
+  document.getElementById('lightToggle').classList.toggle('on', state.lightMode);
+}
+
+function toggleLargeText() {
+  state.largeText = !state.largeText;
+  document.body.classList.toggle('large-text', state.largeText);
+  document.getElementById('largeTextToggle').classList.toggle('on', state.largeText);
+}
+
+function setFontSize(size) {
+  state.fontSize = size;
+  document.querySelectorAll('.font-opt').forEach(o => o.classList.remove('active'));
+  document.querySelector(`[data-size="${size}"]`).classList.add('active');
+  const sizes = { small:'1rem', medium:'1.08rem', large:'1.16rem', xlarge:'1.26rem' };
+  document.documentElement.style.setProperty('--font-size', sizes[size]);
+}
+
+function toggleTopic(el) {
+  const topic = el.dataset.topic;
+  el.classList.toggle('skipped');
+  if (el.classList.contains('skipped')) {
+    state.skippedTopics.push(topic);
+  } else {
+    state.skippedTopics = state.skippedTopics.filter(t => t !== topic);
+  }
+}
+
+function toggleReadAloudAuto() {
+  state.autoRead = !state.autoRead;
+  document.getElementById('autoReadToggle').classList.toggle('on', state.autoRead);
+}
+
+function toggleEncouragement() {
+  state.encourageMode = !state.encourageMode;
+  document.getElementById('encourageToggle').classList.toggle('on', state.encourageMode);
+}
+
+// ── Profile ──
+state.profile = { age: null, gender: null, situation: null, interests: [] };
+
+function selectProfile(el) {
+  const group = el.dataset.group;
+  // Single select per group
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.profile[group] = el.dataset.val;
+}
+
+function toggleInterest(el) {
+  const val = el.dataset.val;
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) {
+    if (!state.profile.interests.includes(val)) state.profile.interests.push(val);
+  } else {
+    state.profile.interests = state.profile.interests.filter(i => i !== val);
+  }
+}
+
+// saveProfile defined above at first launch block
+
+function updateProfileBadge() {
+  const badge = document.getElementById('profileBadge');
+  if (!badge) return;
+  const { age, gender } = state.profile;
+  if (age && age !== 'skip' && gender && gender !== 'skip') {
+    badge.textContent = `${age} · ${gender.charAt(0).toUpperCase() + gender.slice(1)}`;
+    badge.style.display = 'inline-block';
+  } else if (age && age !== 'skip') {
+    badge.textContent = age;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ── Hint system ──
+function showHint() {
+  if (!state.currentQ) return;
+  const q = state.currentQ;
+  // Show a genuine example framing, not just the question or follow-up
+  const hints = [
+    'Start with the first thing that comes to mind — there\'s no wrong answer.',
+    'Take a moment to think… even a one-word answer is a great start.',
+    'Try starting with "The first thing that comes to mind is..."',
+    'It\'s okay to say "I\'ve never thought about that" — then think out loud.',
+    'Go with your gut. The honest answer is always the best one.',
+  ];
+  const hint = hints[Math.floor(Math.random() * hints.length)];
+  document.getElementById('hintText').textContent = hint;
+  document.getElementById('hintPanel').style.display = 'block';
+}
+
+// ── Encouragement ──
+const ENCOURAGEMENTS = [
+  { emoji: '🎉', text: 'Great conversation!', sub: 'You\'re really getting into it' },
+  { emoji: '🔥', text: 'On fire!', sub: 'Keep those questions coming' },
+  { emoji: '💬', text: 'Nice one!', sub: 'That was a great question' },
+  { emoji: '⭐', text: 'Brilliant!', sub: 'Look how much you\'re connecting' },
+  { emoji: '🙌', text: 'Love it!', sub: 'The conversation is flowing' },
+];
+
+function checkEncouragement() {
+  if (!state.encourageMode) return;
+  if (state.questionCount > 0 && state.questionCount % 3 === 0) {
+    const e = ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
+    document.getElementById('encourageEmoji').textContent = e.emoji;
+    document.getElementById('encourageText').textContent = e.text;
+    document.getElementById('encourageSub').textContent = e.sub;
+    const overlay = document.getElementById('encourageOverlay');
+    overlay.style.display = 'flex';
+    setTimeout(() => { if (overlay.style.display === 'flex') closeEncourage(); }, 4000);
+  }
+}
+
+function closeEncourage() {
+  document.getElementById('encourageOverlay').style.display = 'none';
+}
+
+// ── Turn taking ──
+state.players = [];
+state.currentPlayer = 0;
+state.useTurns = false;
+
+function addPlayer() {
+  const input = document.getElementById('playerInput');
+  const name = input.value.trim();
+  if (!name) return;
+  state.players.push(name);
+  input.value = '';
+  renderPlayers();
+  state.useTurns = state.players.length > 1;
+}
+
+function renderPlayers() {
+  const list = document.getElementById('playerList');
+  list.innerHTML = state.players.map((p, i) =>
+    `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:8px;padding:8px 10px;margin-bottom:6px;">
+      <span style="font-size:0.88rem;">👤 ${p}</span>
+      <button onclick="removePlayer(${i})" style="background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;">✕</button>
+    </div>`
+  ).join('');
+}
+
+function removePlayer(i) {
+  state.players.splice(i, 1);
+  renderPlayers();
+  state.useTurns = state.players.length > 1;
+}
+
+function showTurn() {
+  if (!state.useTurns || state.players.length < 2) return;
+  const name = state.players[state.currentPlayer % state.players.length];
+  document.getElementById('turnName').textContent = name;
+  document.getElementById('turnOverlay').style.display = 'flex';
+}
+
+function closeTurn() {
+  document.getElementById('turnOverlay').style.display = 'none';
+  state.currentPlayer++;
+  loadQuestion();
+}
+
+// Hide hint when loading new question
+const origLoadQuestion = loadQuestion;
+function loadQuestion() {
+  document.getElementById('hintPanel').style.display = 'none';
+  state.questionCount++;
+  const q = getQuestion();
+  state.currentQ = q;
+  const card = document.getElementById('questionCard');
+  card.classList.remove('animate');
+  void card.offsetWidth;
+  card.classList.add('animate');
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('qNumber').textContent = `Question ${state.questionCount}`;
+  const isDeep = QUESTIONS[state.vibe].deep && QUESTIONS[state.vibe].deep.includes(q);
+  const badge = document.getElementById('depthBadge');
+  badge.textContent = isDeep ? 'Deep' : 'Light';
+  badge.className = 'depth-badge ' + (isDeep ? 'deep' : 'light');
+  if (state.autoRead) readAloud();
+  checkEncouragement();
+}
+
+// ── Read aloud ──
+function readAloud() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const text = document.getElementById('questionText').textContent;
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.rate = 0.9;
+    utt.lang = 'en-AU';
+    window.speechSynthesis.speak(utt);
+  }
+}
+
+// ── Breathing exercise ──
+let breatheTimer = null;
+const breatheSteps = [
+  { label: 'Breathe in...', sub: 'Slow and steady', phase: 'in', duration: 4000 },
+  { label: 'Hold...', sub: 'Nice and easy', phase: 'hold', duration: 4000 },
+  { label: 'Breathe out...', sub: 'Let it go', phase: 'out', duration: 4000 },
+  { label: 'Hold...', sub: 'You\'re doing great', phase: 'hold', duration: 2000 },
+];
+let breatheStep = 0;
+let breatheRounds = 0;
+
+function startBreathe() {
+  document.getElementById('breathe-overlay').classList.add('active');
+  breatheStep = 0;
+  breatheRounds = 0;
+  runBreathe();
+}
+
+function runBreathe() {
+  const step = breatheSteps[breatheStep % breatheSteps.length];
+  const circle = document.getElementById('breatheCircle');
+  circle.className = 'breathe-circle ' + step.phase;
+  circle.textContent = step.label.split('.')[0];
+  document.getElementById('breatheInstruction').textContent = step.label;
+  document.getElementById('breatheSub').textContent = step.sub;
+  breatheTimer = setTimeout(() => {
+    breatheStep++;
+    if (breatheStep % breatheSteps.length === 0) breatheRounds++;
+    if (breatheRounds < 3) runBreathe();
+    else {
+      document.getElementById('breatheInstruction').textContent = 'All done ✓';
+      document.getElementById('breatheSub').textContent = 'Take your time';
+      circle.className = 'breathe-circle';
+      circle.textContent = '✓';
+    }
+  }, step.duration);
+}
+
+function closeBreathe() {
+  clearTimeout(breatheTimer);
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  document.getElementById('breathe-overlay').classList.remove('active');
+}
+</script>
+</body>
+</html>
