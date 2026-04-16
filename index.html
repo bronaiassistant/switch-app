@@ -571,7 +571,7 @@
 
   <div>
     <button onclick="showScreen('profile')" style="width:100%;padding:17px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);font-size:1.05rem;font-weight:700;color:white;cursor:pointer;margin-bottom:10px;">Set up my profile →</button>
-    <button onclick="skipWelcome()" style="width:100%;padding:12px;background:transparent;border:none;color:var(--muted);font-size:0.88rem;cursor:pointer;">Skip — just get started</button>
+    <button onclick="skipWelcome()" style="width:100%;padding:14px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:0.95rem;font-weight:600;cursor:pointer;">Try it now — skip profile</button>
   </div>
 </div>
 
@@ -612,6 +612,7 @@
   <div style="margin-bottom:20px;">
     <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">I’m usually using this with</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <div class="profile-chip" data-group="situation" data-val="dating" onclick="selectProfile(this)">💘 Dating</div>
       <div class="profile-chip" data-group="situation" data-val="partner" onclick="selectProfile(this)">❤️ Partner</div>
       <div class="profile-chip" data-group="situation" data-val="mates" onclick="selectProfile(this)">🍻 Mates</div>
       <div class="profile-chip" data-group="situation" data-val="family" onclick="selectProfile(this)">👨‍👩‍👧 Family</div>
